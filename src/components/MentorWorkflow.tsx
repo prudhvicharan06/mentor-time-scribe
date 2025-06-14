@@ -1,7 +1,6 @@
-
 import * as React from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Save } from "lucide-react";
+import { CalendarIcon, Save, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -74,6 +73,13 @@ export default function MentorWorkflow() {
     setEntries((old) => old.map((entry, i) => (i === idx ? { ...entry, [field]: value } : entry)));
   };
 
+  // Add new row handler
+  const handleAddRow = () => {
+    setEntries((old) => [...old, { time: "", activity: "" }]);
+    setEditRow(entries.length); // Immediately put focus on new row
+    setEditField("time");
+  };
+
   // Save: show toast with result (could be replaced by API call)
   const handleSave = () => {
     toast({
@@ -88,16 +94,70 @@ export default function MentorWorkflow() {
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-12 mb-12 px-4 py-6 bg-card rounded-2xl shadow-xl border border-muted animate-fade-in">
-      {/* Schedule Tabs */}
+      {/* Schedule Tabs with Add (plus) button inside each tab trigger */}
       <Tabs value={scheduleType} onValueChange={(v) => {
         if (v === "standard" || v === "extended" || v === "nonInstructional") {
           setScheduleType(v);
         }
       }} className="mb-8 w-full">
         <TabsList className="w-full max-w-xl flex rounded-lg">
-          <TabsTrigger value="standard" className="flex-1">Standard<br /><span className="font-normal text-xs">8:30 AM - 4:30 PM</span></TabsTrigger>
-          <TabsTrigger value="extended" className="flex-1">Extended<br /><span className="font-normal text-xs">10:00 AM - 7:00 PM</span></TabsTrigger>
-          <TabsTrigger value="nonInstructional" className="flex-1">Non-Instructional<br /><span className="font-normal text-xs">9:00 AM - 3:00 PM</span></TabsTrigger>
+          <TabsTrigger value="standard" className="flex-1 flex flex-col items-center relative group">
+            <span>Standard</span>
+            <span className="font-normal text-xs">
+              8:30 AM - 4:30 PM
+            </span>
+            <button
+              type="button"
+              aria-label="Add row for Standard schedule"
+              className="absolute top-1 right-2 md:right-4 p-1.5 rounded-full bg-background hover:bg-accent transition-colors border border-muted/60 shadow-sm group-hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              tabIndex={-1}
+              onClick={e => {
+                e.stopPropagation();
+                handleAddRow();
+              }}
+              onMouseDown={e => e.preventDefault()} // Prevent tab switch on click
+            >
+              <Plus size={16} />
+            </button>
+          </TabsTrigger>
+          <TabsTrigger value="extended" className="flex-1 flex flex-col items-center relative group">
+            <span>Extended</span>
+            <span className="font-normal text-xs">
+              10:00 AM - 7:00 PM
+            </span>
+            <button
+              type="button"
+              aria-label="Add row for Extended schedule"
+              className="absolute top-1 right-2 md:right-4 p-1.5 rounded-full bg-background hover:bg-accent transition-colors border border-muted/60 shadow-sm group-hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              tabIndex={-1}
+              onClick={e => {
+                e.stopPropagation();
+                handleAddRow();
+              }}
+              onMouseDown={e => e.preventDefault()}
+            >
+              <Plus size={16} />
+            </button>
+          </TabsTrigger>
+          <TabsTrigger value="nonInstructional" className="flex-1 flex flex-col items-center relative group">
+            <span>Non-Instructional</span>
+            <span className="font-normal text-xs">
+              9:00 AM - 3:00 PM
+            </span>
+            <button
+              type="button"
+              aria-label="Add row for Non-Instructional schedule"
+              className="absolute top-1 right-2 md:right-4 p-1.5 rounded-full bg-background hover:bg-accent transition-colors border border-muted/60 shadow-sm group-hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              tabIndex={-1}
+              onClick={e => {
+                e.stopPropagation();
+                handleAddRow();
+              }}
+              onMouseDown={e => e.preventDefault()}
+            >
+              <Plus size={16} />
+            </button>
+          </TabsTrigger>
         </TabsList>
       </Tabs>
 
