@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Save, Plus } from "lucide-react";
@@ -101,8 +102,46 @@ export default function MentorWorkflow() {
     });
   };
 
+  // Slight gradient for card wrapper
   return (
-    <div className="w-full max-w-3xl mx-auto mt-12 mb-12 px-4 py-6 bg-card rounded-2xl shadow-xl border border-muted animate-fade-in">
+    <div className="w-full max-w-3xl mx-auto mt-12 mb-12 px-4 py-6 rounded-2xl shadow-2xl border border-muted animate-fade-in"
+      style={{
+        background: "linear-gradient(135deg, hsl(var(--card)/95%) 80%, hsl(var(--primary)/8%) 100%)",
+        boxShadow: "0 8px 32px 0 rgba(60, 96, 160, 0.07)",
+      }}
+    >
+      {/* Animated Page Header */}
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl font-bold tracking-tight animate-fade-in mb-1">Mentor Workflow</h1>
+        <span className="text-muted-foreground text-base font-medium flex flex-col items-center justify-center gap-1 animate-fade-in">
+          <span>
+            {date ? format(date, "EEEE, MMMM d, yyyy") : ""}
+            {" · "}
+            <span className={cn(
+              "inline-block px-2 py-0.5 rounded transition bg-secondary border border-primary/20 font-semibold ml-1",
+              {
+                "bg-[#f7faff] text-blue-900": scheduleType === "standard",
+                "bg-green-50 text-green-900": scheduleType === "extended",
+                "bg-yellow-50 text-yellow-900": scheduleType === "nonInstructional",
+              }
+            )}>
+              {scheduleType === "standard"
+                ? "Standard"
+                : scheduleType === "extended"
+                ? "Extended"
+                : "Non-Instructional"}
+            </span>
+          </span>
+          <span className="text-xs mt-1 opacity-85 italic">
+            {scheduleType === "standard"
+              ? "Standard mentor hours (8:30 AM - 4:30 PM)"
+              : scheduleType === "extended"
+              ? "Extended day mentor hours (10:00 AM - 7:00 PM)"
+              : "Non-Instructional day schedule (9:00 AM - 3:00 PM)"}
+          </span>
+        </span>
+      </div>
+
       {/* Schedule Tabs */}
       <Tabs
         value={scheduleType}
@@ -113,7 +152,7 @@ export default function MentorWorkflow() {
         }}
         className="mb-8 w-full"
       >
-        <TabsList className="w-full max-w-xl flex rounded-lg">
+        <TabsList className="w-full max-w-xl flex rounded-lg animate-fade-in">
           <TabsTrigger
             value="standard"
             className="flex-1 flex flex-col items-center relative group"
@@ -139,7 +178,7 @@ export default function MentorWorkflow() {
       </Tabs>
 
       {/* Date Picker */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 animate-fade-in">
         <div>
           <label className="block font-semibold mb-2 text-lg">Select Date</label>
           <Popover>
@@ -147,7 +186,7 @@ export default function MentorWorkflow() {
               <Button
                 variant={"outline"}
                 className={cn(
-                  "min-w-[220px] justify-start text-left font-normal",
+                  "min-w-[220px] justify-start text-left font-normal shadow-sm hover:shadow-md transition",
                   !date && "text-muted-foreground"
                 )}
               >
@@ -155,7 +194,7 @@ export default function MentorWorkflow() {
                 {date ? format(date, "PPP") : <span>Pick a date</span>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start" alignOffset={-8}>
+            <PopoverContent className="w-auto p-0 z-40 bg-card shadow-xl border border-primary/10" align="start" alignOffset={-8}>
               <Calendar
                 mode="single"
                 selected={date}
@@ -178,7 +217,9 @@ export default function MentorWorkflow() {
       </div>
 
       {/* Appealing Table */}
-      <div className="overflow-x-auto bg-background rounded-xl border border-muted/70 shadow-lg">
+      <div className="overflow-x-auto bg-background rounded-xl border border-muted/70 shadow-lg animate-scale-in"
+        style={{ transition: "box-shadow 0.15s" }}
+      >
         <Table>
           <TableHeader>
             <TableRow>
@@ -190,22 +231,23 @@ export default function MentorWorkflow() {
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="animate-fade-in">
             {entries.map((entry, idx) => (
               <TableRow
                 key={idx}
                 className={cn(
-                  "transition-colors text-base",
+                  "transition-colors text-base group",
                   idx % 2 === 1 ? "bg-accent/30" : "bg-card",
                   "hover:bg-primary/10",
-                  editRow === idx && "ring-2 ring-primary/40"
+                  editRow === idx && "border-primary border-2 ring-2 ring-primary/40 shadow-lg z-10",
                 )}
+                style={editRow === idx ? { transition: "box-shadow 0.3s, border 0.2s" } : {}}
               >
                 {/* Editable Time (now an interval: start - end) */}
                 <TableCell
                   className={cn(
                     "py-3 px-4 align-middle cursor-pointer rounded-l-lg group flex gap-1 items-center",
-                    editRow === idx && (editField === "start" || editField === "end") && "bg-secondary"
+                    editRow === idx && (editField === "start" || editField === "end") && "bg-secondary/80"
                   )}
                   onClick={() => {
                     setEditRow(idx);
@@ -266,8 +308,8 @@ export default function MentorWorkflow() {
                 {/* Editable Activity */}
                 <TableCell
                   className={cn(
-                    "py-3 px-4 align-middle cursor-pointer rounded-r-lg group",
-                    editRow === idx && editField === "activity" && "bg-secondary"
+                    "py-3 px-4 align-middle cursor-pointer rounded-r-lg group hover:bg-secondary/20 transition",
+                    editRow === idx && editField === "activity" && "bg-secondary/80"
                   )}
                   onClick={() => {
                     setEditRow(idx);
@@ -294,7 +336,7 @@ export default function MentorWorkflow() {
                   ) : (
                     <span
                       className={cn(
-                        "text-muted-foreground",
+                        "text-muted-foreground transition-colors",
                         !entry.activity && "opacity-60 italic"
                       )}
                     >
@@ -310,12 +352,12 @@ export default function MentorWorkflow() {
         <div className="flex justify-center py-4">
           <Button
             variant="secondary"
-            className="flex gap-1 items-center px-4 py-2 rounded-lg text-base font-medium shadow border border-muted"
+            className="flex gap-1 items-center px-4 py-2 rounded-lg text-base font-medium shadow border border-muted transition-transform hover:scale-105 hover:shadow-lg hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 animate-fade-in"
             onClick={handleAddRow}
             aria-label="Add row"
             type="button"
           >
-            <Plus size={18} />
+            <Plus size={18} className="transition-transform group-hover:rotate-90" />
             Add Row
           </Button>
         </div>
@@ -325,7 +367,7 @@ export default function MentorWorkflow() {
       <div className="flex justify-end mt-8">
         <Button
           onClick={handleSave}
-          className="flex gap-1 items-center px-6 py-2 rounded-lg text-base font-semibold"
+          className="flex gap-1 items-center px-6 py-2 rounded-lg text-base font-semibold shadow transition-transform hover:scale-105 hover:shadow-xl bg-gradient-to-r from-primary/80 to-primary/90 text-primary-foreground hover:from-primary hover:to-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary animate-fade-in"
         >
           <Save size={18} className="mr-1" />
           Save
@@ -334,3 +376,5 @@ export default function MentorWorkflow() {
     </div>
   );
 }
+
+// This component is now over 350 lines. Please consider asking me to refactor it for easier maintainability.
