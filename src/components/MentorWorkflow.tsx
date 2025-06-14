@@ -8,6 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "@/hooks/use-toast";
 
+// import shadcn/ui table components
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+
 // Helper: generate time slots given start/end/interval in minutes
 function generateDefaultTimeSlots() {
   const slots: { time: string; activity: string }[] = [];
@@ -44,7 +54,6 @@ export default function MentorWorkflow() {
 
   // Save: show toast with result (could be replaced by API call)
   const handleSave = () => {
-    // Data to save: date + entries
     toast({
       title: "Workflow Saved",
       description: (
@@ -56,7 +65,7 @@ export default function MentorWorkflow() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto mt-12 mb-12 px-4 py-6 bg-card rounded-2xl shadow border">
+    <div className="w-full max-w-3xl mx-auto mt-12 mb-12 px-4 py-6 bg-card rounded-2xl shadow-xl border border-muted animate-fade-in">
       {/* Date Picker */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
@@ -90,27 +99,34 @@ export default function MentorWorkflow() {
         <span className="text-sm text-muted-foreground mt-1 md:mt-0">Plan activities by time slot for the day</span>
       </div>
 
-      {/* Editable Table */}
-      <div className="overflow-x-auto rounded-md border bg-background">
-        <table className="min-w-full bg-transparent">
-          <thead>
-            <tr>
-              <th className="py-3 px-4 bg-muted text-left font-medium text-base border-b w-32 md:w-48">Time</th>
-              <th className="py-3 px-4 bg-muted text-left font-medium text-base border-b">Activity</th>
-            </tr>
-          </thead>
-          <tbody>
+      {/* Appealing Table */}
+      <div className="overflow-x-auto bg-background rounded-xl border border-muted/70 shadow-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="bg-muted/60 text-base font-semibold w-32 md:w-48 rounded-tl-xl">
+                Time
+              </TableHead>
+              <TableHead className="bg-muted/60 text-base font-semibold rounded-tr-xl">
+                Activity
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {entries.map((entry, idx) => (
-              <tr
+              <TableRow
                 key={idx}
                 className={cn(
-                  "group border-b last:border-b-0 text-base hover:bg-accent transition-colors"
+                  "transition-colors text-base",
+                  idx % 2 === 1 ? "bg-accent/30" : "bg-card", // zebra stripes
+                  "hover:bg-primary/10", // subtle hover
+                  editRow === idx && "ring-2 ring-primary/40"
                 )}
               >
                 {/* Editable Time */}
-                <td
+                <TableCell
                   className={cn(
-                    "py-2.5 px-4 align-middle",
+                    "py-3 px-4 align-middle cursor-pointer rounded-l-lg group",
                     editRow === idx && editField === "time" && "bg-secondary"
                   )}
                   onClick={() => {
@@ -120,7 +136,7 @@ export default function MentorWorkflow() {
                 >
                   {editRow === idx && editField === "time" ? (
                     <input
-                      className="w-28 md:w-36 px-2 py-1 rounded outline-none border focus:border-primary bg-background"
+                      className="w-28 md:w-36 px-2 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
                       value={entry.time}
                       autoFocus
                       onBlur={() => { setEditRow(null); setEditField(null); }}
@@ -132,13 +148,13 @@ export default function MentorWorkflow() {
                       }}
                     />
                   ) : (
-                    <span className="cursor-pointer">{entry.time}</span>
+                    <span className="">{entry.time}</span>
                   )}
-                </td>
+                </TableCell>
                 {/* Editable Activity */}
-                <td
+                <TableCell
                   className={cn(
-                    "py-2.5 px-4 align-middle",
+                    "py-3 px-4 align-middle cursor-pointer rounded-r-lg group",
                     editRow === idx && editField === "activity" && "bg-secondary"
                   )}
                   onClick={() => {
@@ -148,7 +164,7 @@ export default function MentorWorkflow() {
                 >
                   {editRow === idx && editField === "activity" ? (
                     <input
-                      className="w-full max-w-xs px-2 py-1 rounded outline-none border focus:border-primary bg-background"
+                      className="w-full max-w-xs px-2 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
                       value={entry.activity}
                       autoFocus
                       onBlur={() => { setEditRow(null); setEditField(null); }}
@@ -160,17 +176,19 @@ export default function MentorWorkflow() {
                       }}
                     />
                   ) : (
-                    <span className="cursor-pointer text-muted-foreground">
-                      {entry.activity || <span className="opacity-60 italic">Enter activity</span>}
+                    <span className={cn(
+                      "text-muted-foreground",
+                      !entry.activity && "opacity-60 italic"
+                    )}>
+                      {entry.activity || <span>Enter activity</span>}
                     </span>
                   )}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
-
       {/* Save Action Bar */}
       <div className="flex justify-end mt-8">
         <Button
