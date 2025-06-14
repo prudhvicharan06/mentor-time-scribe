@@ -94,69 +94,37 @@ export default function MentorWorkflow() {
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-12 mb-12 px-4 py-6 bg-card rounded-2xl shadow-xl border border-muted animate-fade-in">
-      {/* Schedule Tabs with Add (plus) button inside each tab trigger */}
-      <Tabs value={scheduleType} onValueChange={(v) => {
-        if (v === "standard" || v === "extended" || v === "nonInstructional") {
-          setScheduleType(v);
-        }
-      }} className="mb-8 w-full">
+      {/* Schedule Tabs */}
+      <Tabs
+        value={scheduleType}
+        onValueChange={(v) => {
+          if (v === "standard" || v === "extended" || v === "nonInstructional") {
+            setScheduleType(v);
+          }
+        }}
+        className="mb-8 w-full"
+      >
         <TabsList className="w-full max-w-xl flex rounded-lg">
-          <TabsTrigger value="standard" className="flex-1 flex flex-col items-center relative group">
+          <TabsTrigger
+            value="standard"
+            className="flex-1 flex flex-col items-center relative group"
+          >
             <span>Standard</span>
-            <span className="font-normal text-xs">
-              8:30 AM - 4:30 PM
-            </span>
-            <button
-              type="button"
-              aria-label="Add row for Standard schedule"
-              className="absolute top-1 right-2 md:right-4 p-1.5 rounded-full bg-background hover:bg-accent transition-colors border border-muted/60 shadow-sm group-hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              tabIndex={-1}
-              onClick={e => {
-                e.stopPropagation();
-                handleAddRow();
-              }}
-              onMouseDown={e => e.preventDefault()} // Prevent tab switch on click
-            >
-              <Plus size={16} />
-            </button>
+            <span className="font-normal text-xs">8:30 AM - 4:30 PM</span>
           </TabsTrigger>
-          <TabsTrigger value="extended" className="flex-1 flex flex-col items-center relative group">
+          <TabsTrigger
+            value="extended"
+            className="flex-1 flex flex-col items-center relative group"
+          >
             <span>Extended</span>
-            <span className="font-normal text-xs">
-              10:00 AM - 7:00 PM
-            </span>
-            <button
-              type="button"
-              aria-label="Add row for Extended schedule"
-              className="absolute top-1 right-2 md:right-4 p-1.5 rounded-full bg-background hover:bg-accent transition-colors border border-muted/60 shadow-sm group-hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              tabIndex={-1}
-              onClick={e => {
-                e.stopPropagation();
-                handleAddRow();
-              }}
-              onMouseDown={e => e.preventDefault()}
-            >
-              <Plus size={16} />
-            </button>
+            <span className="font-normal text-xs">10:00 AM - 7:00 PM</span>
           </TabsTrigger>
-          <TabsTrigger value="nonInstructional" className="flex-1 flex flex-col items-center relative group">
+          <TabsTrigger
+            value="nonInstructional"
+            className="flex-1 flex flex-col items-center relative group"
+          >
             <span>Non-Instructional</span>
-            <span className="font-normal text-xs">
-              9:00 AM - 3:00 PM
-            </span>
-            <button
-              type="button"
-              aria-label="Add row for Non-Instructional schedule"
-              className="absolute top-1 right-2 md:right-4 p-1.5 rounded-full bg-background hover:bg-accent transition-colors border border-muted/60 shadow-sm group-hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              tabIndex={-1}
-              onClick={e => {
-                e.stopPropagation();
-                handleAddRow();
-              }}
-              onMouseDown={e => e.preventDefault()}
-            >
-              <Plus size={16} />
-            </button>
+            <span className="font-normal text-xs">9:00 AM - 3:00 PM</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -240,11 +208,15 @@ export default function MentorWorkflow() {
                       className="w-28 md:w-36 px-2 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
                       value={entry.time}
                       autoFocus
-                      onBlur={() => { setEditRow(null); setEditField(null); }}
+                      onBlur={() => {
+                        setEditRow(null);
+                        setEditField(null);
+                      }}
                       onChange={e => handleCellChange(idx, "time", e.target.value)}
                       onKeyDown={e => {
                         if (e.key === "Enter" || e.key === "Tab") {
-                          setEditRow(null); setEditField(null);
+                          setEditRow(null);
+                          setEditField(null);
                         }
                       }}
                     />
@@ -268,19 +240,25 @@ export default function MentorWorkflow() {
                       className="w-full max-w-xs px-2 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
                       value={entry.activity}
                       autoFocus
-                      onBlur={() => { setEditRow(null); setEditField(null); }}
+                      onBlur={() => {
+                        setEditRow(null);
+                        setEditField(null);
+                      }}
                       onChange={e => handleCellChange(idx, "activity", e.target.value)}
                       onKeyDown={e => {
                         if (e.key === "Enter" || e.key === "Tab") {
-                          setEditRow(null); setEditField(null);
+                          setEditRow(null);
+                          setEditField(null);
                         }
                       }}
                     />
                   ) : (
-                    <span className={cn(
-                      "text-muted-foreground",
-                      !entry.activity && "opacity-60 italic"
-                    )}>
+                    <span
+                      className={cn(
+                        "text-muted-foreground",
+                        !entry.activity && "opacity-60 italic"
+                      )}
+                    >
                       {entry.activity || <span>Enter activity</span>}
                     </span>
                   )}
@@ -289,7 +267,21 @@ export default function MentorWorkflow() {
             ))}
           </TableBody>
         </Table>
+        {/* Add Row Button: below the table as requested */}
+        <div className="flex justify-center py-4">
+          <Button
+            variant="secondary"
+            className="flex gap-1 items-center px-4 py-2 rounded-lg text-base font-medium shadow border border-muted"
+            onClick={handleAddRow}
+            aria-label="Add row"
+            type="button"
+          >
+            <Plus size={18} />
+            Add Row
+          </Button>
+        </div>
       </div>
+
       {/* Save Action Bar */}
       <div className="flex justify-end mt-8">
         <Button
