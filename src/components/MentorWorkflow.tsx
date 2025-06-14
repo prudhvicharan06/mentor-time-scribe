@@ -16,9 +16,18 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// Helper: generate time slots given start/end/interval in minutes
+// Helper: format minutes as "H:MM"
+function formatTime(minutes: number) {
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  const ampm = hour < 12 ? "AM" : "PM";
+  const displayHour = ((hour + 11) % 12) + 1;
+  return `${displayHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+}
+
+// Helper: generate time slots given start/end/interval in minutes as intervals
 function generateTimeSlots(type: "standard" | "extended" | "nonInstructional") {
-  let slots: { time: string; activity: string }[] = [];
+  let slots: { start: string; end: string; activity: string }[] = [];
   let startMinutes: number, endMinutes: number, interval: number;
   switch (type) {
     case "standard":
@@ -41,13 +50,12 @@ function generateTimeSlots(type: "standard" | "extended" | "nonInstructional") {
       endMinutes = 16 * 60 + 30;
       interval = 60;
   }
-  for (let min = startMinutes; min <= endMinutes; min += interval) {
-    const hour = Math.floor(min / 60);
-    const minute = min % 60;
-    const ampm = hour < 12 ? "AM" : "PM";
-    const displayHour = ((hour + 11) % 12) + 1;
+  for (let min = startMinutes; min + interval <= endMinutes; min += interval) {
+    const start = formatTime(min);
+    const end = formatTime(min + interval);
     slots.push({
-      time: `${displayHour}:${minute.toString().padStart(2, "0")} ${ampm}`,
+      start,
+      end,
       activity: "",
     });
   }
@@ -57,9 +65,10 @@ function generateTimeSlots(type: "standard" | "extended" | "nonInstructional") {
 export default function MentorWorkflow() {
   const [date, setDate] = React.useState<Date>(new Date());
   const [scheduleType, setScheduleType] = React.useState<"standard" | "extended" | "nonInstructional">("standard");
-  const [entries, setEntries] = React.useState<{ time: string; activity: string }[]>(() => generateTimeSlots("standard"));
+  // ENTRY now: { start, end, activity }
+  const [entries, setEntries] = React.useState<{ start: string; end: string; activity: string }[]>(() => generateTimeSlots("standard"));
   const [editRow, setEditRow] = React.useState<number | null>(null);
-  const [editField, setEditField] = React.useState<"time" | "activity" | null>(null);
+  const [editField, setEditField] = React.useState<"start" | "end" | "activity" | null>(null);
 
   // When schedule type changes, reset slots
   React.useEffect(() => {
@@ -69,15 +78,15 @@ export default function MentorWorkflow() {
   }, [scheduleType]);
 
   // Handle cell changes: update entries array by index
-  const handleCellChange = (idx: number, field: "time" | "activity", value: string) => {
+  const handleCellChange = (idx: number, field: "start" | "end" | "activity", value: string) => {
     setEntries((old) => old.map((entry, i) => (i === idx ? { ...entry, [field]: value } : entry)));
   };
 
   // Add new row handler
   const handleAddRow = () => {
-    setEntries((old) => [...old, { time: "", activity: "" }]);
+    setEntries((old) => [...old, { start: "", end: "", activity: "" }]);
     setEditRow(entries.length); // Immediately put focus on new row
-    setEditField("time");
+    setEditField("start");
   };
 
   // Save: show toast with result (could be replaced by API call)
@@ -173,7 +182,7 @@ export default function MentorWorkflow() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="bg-muted/60 text-base font-semibold w-32 md:w-48 rounded-tl-xl">
+              <TableHead className="bg-muted/60 text-base font-semibold w-48 md:w-56 rounded-tl-xl">
                 Time
               </TableHead>
               <TableHead className="bg-muted/60 text-base font-semibold rounded-tr-xl">
@@ -192,36 +201,66 @@ export default function MentorWorkflow() {
                   editRow === idx && "ring-2 ring-primary/40"
                 )}
               >
-                {/* Editable Time */}
+                {/* Editable Time (now an interval: start - end) */}
                 <TableCell
                   className={cn(
-                    "py-3 px-4 align-middle cursor-pointer rounded-l-lg group",
-                    editRow === idx && editField === "time" && "bg-secondary"
+                    "py-3 px-4 align-middle cursor-pointer rounded-l-lg group flex gap-1 items-center",
+                    editRow === idx && (editField === "start" || editField === "end") && "bg-secondary"
                   )}
                   onClick={() => {
                     setEditRow(idx);
-                    setEditField("time");
+                    setEditField("start");
                   }}
                 >
-                  {editRow === idx && editField === "time" ? (
-                    <input
-                      className="w-28 md:w-36 px-2 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
-                      value={entry.time}
-                      autoFocus
-                      onBlur={() => {
-                        setEditRow(null);
-                        setEditField(null);
-                      }}
-                      onChange={e => handleCellChange(idx, "time", e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === "Enter" || e.key === "Tab") {
+                  {editRow === idx && (editField === "start" || editField === "end") ? (
+                    <div className="flex gap-1 items-center w-full">
+                      <input
+                        className="w-20 px-1 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
+                        value={entry.start}
+                        autoFocus={editField === "start"}
+                        onBlur={() => {
+                          // If leaving the cell and field was "end", finish editing
+                          if (editField === "end" || !entry.end) {
+                            setEditRow(null);
+                            setEditField(null);
+                          }
+                        }}
+                        onChange={e => handleCellChange(idx, "start", e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Tab") {
+                            setEditField("end");
+                          } else if (e.key === "Enter") {
+                            setEditRow(null);
+                            setEditField(null);
+                          }
+                        }}
+                        placeholder="Start"
+                      />
+                      <span>-</span>
+                      <input
+                        className="w-20 px-1 py-1 rounded outline-none border border-muted focus:border-primary bg-background transition-shadow shadow hover:shadow-md"
+                        value={entry.end}
+                        autoFocus={editField === "end"}
+                        onBlur={() => {
                           setEditRow(null);
                           setEditField(null);
-                        }
-                      }}
-                    />
+                        }}
+                        onChange={e => handleCellChange(idx, "end", e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter" || e.key === "Tab") {
+                            setEditRow(null);
+                            setEditField(null);
+                          }
+                        }}
+                        placeholder="End"
+                      />
+                    </div>
                   ) : (
-                    <span className="">{entry.time}</span>
+                    <span>
+                      {entry.start && entry.end
+                        ? `${entry.start} - ${entry.end}`
+                        : (entry.start || "Start") + " - " + (entry.end || "End")}
+                    </span>
                   )}
                 </TableCell>
                 {/* Editable Activity */}
