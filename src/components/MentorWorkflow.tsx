@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Save, Plus } from "lucide-react";
@@ -110,38 +109,6 @@ export default function MentorWorkflow() {
         boxShadow: "0 8px 32px 0 rgba(60, 96, 160, 0.07)",
       }}
     >
-      {/* Animated Page Header */}
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold tracking-tight animate-fade-in mb-1">Mentor Workflow</h1>
-        <span className="text-muted-foreground text-base font-medium flex flex-col items-center justify-center gap-1 animate-fade-in">
-          <span>
-            {date ? format(date, "EEEE, MMMM d, yyyy") : ""}
-            {" · "}
-            <span className={cn(
-              "inline-block px-2 py-0.5 rounded transition bg-secondary border border-primary/20 font-semibold ml-1",
-              {
-                "bg-[#f7faff] text-blue-900": scheduleType === "standard",
-                "bg-green-50 text-green-900": scheduleType === "extended",
-                "bg-yellow-50 text-yellow-900": scheduleType === "nonInstructional",
-              }
-            )}>
-              {scheduleType === "standard"
-                ? "Standard"
-                : scheduleType === "extended"
-                ? "Extended"
-                : "Non-Instructional"}
-            </span>
-          </span>
-          <span className="text-xs mt-1 opacity-85 italic">
-            {scheduleType === "standard"
-              ? "Standard mentor hours (8:30 AM - 4:30 PM)"
-              : scheduleType === "extended"
-              ? "Extended day mentor hours (10:00 AM - 7:00 PM)"
-              : "Non-Instructional day schedule (9:00 AM - 3:00 PM)"}
-          </span>
-        </span>
-      </div>
-
       {/* Schedule Tabs */}
       <Tabs
         value={scheduleType}
